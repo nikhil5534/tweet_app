@@ -1,14 +1,8 @@
 {
   "builds": [
-    {
-      "src": "tweetheadq/asgi.py",
-      "use": "@vercel/python"
-    }
+    { "src": "tweetheadq/asgi.py", "use": "@vercel/python" }
   ],
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "tweetheadq/asgi.py"
-    }
+    { "src": "/(.*)", "dest": "tweetheadq/asgi.py" }
   ]
 }
