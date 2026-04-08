@@ -5,3 +5,5 @@ django-browser-reload==1.21.0
 django-extensions==4.1.0
 django-tailwind==4.4.2
 psycopg2-binary==2.9.11
+gunicorn==23.0.0
+dj-database-url==2.2.0
