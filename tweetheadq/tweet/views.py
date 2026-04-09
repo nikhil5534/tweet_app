@@ -35,7 +35,7 @@ def tweet_edit(request, tweet_id):
             return redirect('tweet_list')
     else:
         form = TweetForm(instance=tweet)
-    return render(request, 'tweet_form.html', {'form': form})
+    return render(request, 'tweet/tweet_form.html', {'form': form})
 
 @login_required
 def tweet_delete(request, tweet_id):
