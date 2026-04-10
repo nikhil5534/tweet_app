@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Tweet
-from .forms import TweetForm, UserRegistrationForm
+from .models import Tweet, Like, Comment
+from .forms import TweetForm, UserRegistrationForm, CommentForm
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 
@@ -12,7 +13,16 @@ def index(request):
 
 def tweet_list(request):
     tweets = Tweet.objects.all().order_by("-created_at")
-    return render(request, 'tweet/tweet_list.html', {'tweets': tweets})
+
+    liked_tweet_ids = []
+    if request.user.is_authenticated:
+        liked_tweet_ids = Like.objects.filter(user=request.user)\
+                                      .values_list('tweet_id', flat=True)
+
+    return render(request, 'tweet/tweet_list.html', {
+        'tweets': tweets,
+        'liked_tweet_ids': liked_tweet_ids
+    })
 
 
 @login_required
@@ -74,10 +84,47 @@ def register(request):
 
 
 def user_tweets(request, username):
-    user = get_object_or_404(User, username=username)
-    tweets = Tweet.objects.filter(user=user).order_by("-created_at")
+    user_obj = get_object_or_404(User, username=username)
+    tweets = Tweet.objects.filter(user=user_obj).order_by("-created_at")
+
+    liked_tweet_ids = []
+    if request.user.is_authenticated:
+        liked_tweet_ids = Like.objects.filter(user=request.user)\
+                                      .values_list('tweet_id', flat=True)
 
     return render(request, 'tweet/tweet_list.html', {
         'tweets': tweets,
-        'profile_user': user
+        'profile_user': user_obj,
+        'liked_tweet_ids': liked_tweet_ids
     })
+
+
+@login_required
+@require_POST
+def toggle_like(request, tweet_id):
+    tweet = get_object_or_404(Tweet, id=tweet_id)
+
+    like, created = Like.objects.get_or_create(
+        user=request.user,
+        tweet=tweet
+    )
+
+    if not created:
+        like.delete()
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required
+@require_POST
+def add_comment(request, tweet_id):
+    tweet = get_object_or_404(Tweet, id=tweet_id)
+
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.user = request.user
+        comment.tweet = tweet
+        comment.save()
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))
