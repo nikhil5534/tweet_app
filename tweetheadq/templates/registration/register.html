@@ -9,14 +9,17 @@
     <div class="mb-3">
         {{ field.label_tag }}
         {{ field }}
-        
-        <!-- ✅ THIS SHOWS ERRORS -->
+
+        <!-- ✅ ADD THIS -->
+        <small class="text-muted">
+            {{ field.help_text }}
+        </small>
+
         <div style="color:red;">
             {{ field.errors }}
         </div>
     </div>
-    {% endfor %}
-
-    <button type="submit" class="btn btn-success">Register</button>
+{% endfor %}
+<button type="submit" class="btn btn-success">Register</button>
 </form>
 {% endblock %}
