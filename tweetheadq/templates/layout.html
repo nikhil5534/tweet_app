@@ -99,6 +99,23 @@ function toggleComments(tweetId) {
         section.style.display = "none";
     }
 }
+function toggleComments(tweetId) {
+    const section = document.getElementById(`comments-${tweetId}`);
+    section.style.display = section.style.display === "block" ? "none" : "block";
+}
+
+function toggleEdit(commentId) {
+    const view = document.getElementById(`comment-view-${commentId}`);
+    const edit = document.getElementById(`comment-edit-${commentId}`);
+
+    if (edit.style.display === "none") {
+        edit.style.display = "block";
+        view.style.display = "none";
+    } else {
+        edit.style.display = "none";
+        view.style.display = "block";
+    }
+}
 </script>
 
 </body>

@@ -14,7 +14,6 @@
     Create a Tweet
 </a>
 
-<!-- Heading -->
 {% if profile_user %}
     <h3 class="mb-4">Tweets by @{{ profile_user.username }}</h3>
 {% else %}
@@ -46,10 +45,10 @@
                         <!-- TEXT -->
                         <p>{{ tweet.text }}</p>
 
-                        <!-- LIKE + COMMENT -->
+                        <!-- ACTIONS -->
                         <div class="mt-auto d-flex gap-2">
 
-                            <!-- LIKE -->
+                            <!-- LIKE FORM -->
                             <form action="{% url 'toggle_like' tweet.id %}" method="post">
                                 {% csrf_token %}
                                 {% if tweet.id in liked_tweet_ids %}
@@ -70,7 +69,7 @@
 
                         </div>
 
-                        <!-- COMMENT SECTION -->
+                        <!-- COMMENTS SECTION -->
                         <div id="comments-{{ tweet.id }}" style="display:none; margin-top:10px;">
 
                             {% if user.is_authenticated %}
@@ -85,9 +84,46 @@
 
                             <!-- COMMENTS LIST -->
                             {% for comment in tweet.comments.all %}
-                                <div class="border rounded p-2 mb-1">
-                                    <strong>@{{ comment.user.username }}</strong><br>
-                                    {{ comment.text }}
+                                <div class="border rounded p-2 mb-2">
+
+                                    <!-- NORMAL VIEW -->
+                                    <div id="comment-view-{{ comment.id }}">
+                                        <strong>@{{ comment.user.username }}</strong><br>
+                                        <span>{{ comment.text }}</span>
+
+                                        <div class="mt-1 d-flex gap-1">
+
+                                            <!-- EDIT -->
+                                            {% if comment.user == user %}
+                                                <button onclick="toggleEdit({{ comment.id }})" class="btn btn-sm btn-primary">
+                                                    Edit
+                                                </button>
+                                            {% endif %}
+
+                                            <!-- DELETE -->
+                                            {% if comment.user == user or tweet.user == user %}
+                                                <form method="POST" action="{% url 'delete_comment' comment.id %}">
+                                                    {% csrf_token %}
+                                                    <button class="btn btn-sm btn-danger">Delete</button>
+                                                </form>
+                                            {% endif %}
+
+                                        </div>
+                                    </div>
+
+                                    <!-- EDIT MODE -->
+                                    <div id="comment-edit-{{ comment.id }}" style="display:none;">
+                                        <form method="POST" action="{% url 'edit_comment' comment.id %}">
+                                            {% csrf_token %}
+                                            <input type="text" name="text" value="{{ comment.text }}" class="form-control mb-2">
+                                            
+                                            <button class="btn btn-success btn-sm">Save</button>
+                                            <button type="button" onclick="toggleEdit({{ comment.id }})" class="btn btn-secondary btn-sm">
+                                                Cancel
+                                            </button>
+                                        </form>
+                                    </div>
+
                                 </div>
                             {% empty %}
                                 <p class="text-muted">No comments yet.</p>
@@ -95,7 +131,7 @@
 
                         </div>
 
-                        <!-- EDIT / DELETE -->
+                        <!-- EDIT / DELETE TWEET -->
                         {% if tweet.user == user %}
                             <div class="mt-2">
                                 <a href="{% url 'tweet_edit' tweet.id %}" class="btn btn-primary btn-sm">Edit</a>
