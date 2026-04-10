@@ -128,3 +128,31 @@ def add_comment(request, tweet_id):
         comment.save()
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required
+@require_POST
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    if request.user != comment.user and request.user != comment.tweet.user:
+        return redirect('tweet_list')  # block unauthorized
+
+    comment.delete()
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required
+@require_POST
+def edit_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    if request.user != comment.user:
+        return redirect('tweet_list')  # block unauthorized
+
+    new_text = request.POST.get('text', '').strip()
+
+    if new_text:
+        comment.text = new_text
+        comment.save()
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))

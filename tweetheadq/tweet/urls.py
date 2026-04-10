@@ -13,4 +13,6 @@ urlpatterns = [
     path('tweet/<int:tweet_id>/like/', views.toggle_like, name='toggle_like'),
     # tweet/urls.py
     path('tweet/<int:tweet_id>/comment/', views.add_comment, name='add_comment'),
+    path('comment/<int:comment_id>/edit/', views.edit_comment, name='edit_comment'),
+    path('comment/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
 ]
