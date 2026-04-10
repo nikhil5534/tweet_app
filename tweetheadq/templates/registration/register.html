@@ -3,8 +3,20 @@
 {% block content %}
 <h2>Register Form</h2>
 <form method="post">
-    {% csrf_token %}
-    {{form.as_p}}
-    <button class="btn btn-primary mt-2 mb-2">Register</button>
+{% csrf_token %}
+
+{% for field in form %}
+    <div class="mb-3">
+        {{ field.label_tag }}
+        {{ field }}
+        
+        <!-- ✅ THIS SHOWS ERRORS -->
+        <div style="color:red;">
+            {{ field.errors }}
+        </div>
+    </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-success">Register</button>
 </form>
 {% endblock %}
