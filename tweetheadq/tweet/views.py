@@ -3,6 +3,8 @@ from .models import Tweet
 from .forms import TweetForm, UserRegistrationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
+from django.contrib.auth.models import User
+
 
 def index(request):
     return render(request, 'tweet/index.html')
@@ -69,3 +71,13 @@ def register(request):
         form = UserRegistrationForm()
 
     return render(request, 'registration/register.html', {'form': form})
+
+
+def user_tweets(request, username):
+    user = get_object_or_404(User, username=username)
+    tweets = Tweet.objects.filter(user=user).order_by("-created_at")
+
+    return render(request, 'tweet/tweet_list.html', {
+        'tweets': tweets,
+        'profile_user': user
+    })
