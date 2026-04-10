@@ -88,7 +88,7 @@
 
                                     <!-- NORMAL VIEW -->
                                     <div id="comment-view-{{ comment.id }}">
-                                        <strong>@{{ comment.user.username }}</strong><br>
+                                        <strong>@{{ comment.user.username }}- <h6>{{comment.updated_at}}</h6> </strong><br>
                                         <span>{{ comment.text }}</span>
 
                                         <div class="mt-1 d-flex gap-1">
