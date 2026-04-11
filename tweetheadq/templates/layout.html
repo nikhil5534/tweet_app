@@ -41,15 +41,16 @@
                 </li>
             </ul>
 
-            <!-- Search -->
+            {% comment %} <!-- Search -->
             <form class="d-flex me-3" role="search">
                 <input class="form-control me-2" type="search" placeholder="Search">
                 <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
+            </form> {% endcomment %}
 
             <!-- Auth Section -->
             {% if user.is_authenticated %}
 
+                <h6>@{{profile_user.username}} </h6>
                 <!-- Create Tweet -->
                 <a href="{% url 'tweet_create' %}" class="btn btn-primary me-2">
                     Create
