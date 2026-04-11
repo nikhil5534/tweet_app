@@ -50,7 +50,7 @@
             <!-- Auth Section -->
             {% if user.is_authenticated %}
 
-                <h6>@{{profile_user.username}} </h6>
+                <h6>@{{user.username}} </h6>
                 <!-- Create Tweet -->
                 <a href="{% url 'tweet_create' %}" class="btn btn-primary me-2">
                     Create
