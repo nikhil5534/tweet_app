@@ -39,20 +39,20 @@ class Comment(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.text[:20]}"
     
-class Notification(models.Model):
-    NOTIFICATION_TYPES = (
-        ('like', 'Like'),
-        ('comment', 'Comment'),
-    )
+# class Notification(models.Model):
+#     NOTIFICATION_TYPES = (
+#         ('like', 'Like'),
+#         ('comment', 'Comment'),
+#     )
 
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_notifications')
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
-    tweet = models.ForeignKey('Tweet', on_delete=models.CASCADE)
+#     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_notifications')
+#     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+#     tweet = models.ForeignKey('Tweet', on_delete=models.CASCADE)
 
-    notification_type = models.CharField(max_length=10, choices=NOTIFICATION_TYPES)
-    is_read = models.BooleanField(default=False)
+#     notification_type = models.CharField(max_length=10, choices=NOTIFICATION_TYPES)
+#     is_read = models.BooleanField(default=False)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"{self.sender} -> {self.receiver} ({self.notification_type})"
+#     def __str__(self):
+#         return f"{self.sender} -> {self.receiver} ({self.notification_type})"
