@@ -15,4 +15,6 @@ urlpatterns = [
     path('tweet/<int:tweet_id>/comment/', views.add_comment, name='add_comment'),
     path('comment/<int:comment_id>/edit/', views.edit_comment, name='edit_comment'),
     path('comment/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
+    # search-users
+    path('search-users/', views.search_users, name='search_users'),
 ]

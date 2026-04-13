@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.contrib.auth import login
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 
 
 def index(request):
@@ -156,3 +157,12 @@ def edit_comment(request, comment_id):
         comment.save()
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
+
+def search_users(request):
+    query = request.GET.get('q', '')
+    
+    users = User.objects.filter(username__icontains=query)[:10]
+    
+    results = list(users.values('id', 'username'))
+    
+    return JsonResponse({'results': results})
