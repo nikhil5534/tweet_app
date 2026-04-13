@@ -1,17 +1,14 @@
 from pathlib import Path
 import os
 import dj_database_url
-from dotenv import load_dotenv
-
-load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "unsafe-secret")
-# DEBUG = os.environ.get("DEBUG", "False") == "True"
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "False") == "True"
+# DEBUG = True
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", ".vercel.app"]
 
 # APPS
