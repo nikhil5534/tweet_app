@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Tweet, Like, Comment
+from .models import Tweet, Like, Comment, Notification
 from .forms import TweetForm, UserRegistrationForm, CommentForm
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
@@ -103,18 +103,27 @@ def user_tweets(request, username):
 @login_required
 @require_POST
 def toggle_like(request, tweet_id):
-    tweet = get_object_or_404(Tweet, id=tweet_id)
+    tweet = Tweet.objects.get(id=tweet_id)
 
     like, created = Like.objects.get_or_create(
         user=request.user,
         tweet=tweet
     )
 
-    if not created:
+    if created:
+        # ✅ LIKE → create notification
+        if tweet.user != request.user:
+            Notification.objects.create(
+                sender=request.user,
+                receiver=tweet.user,
+                tweet=tweet,
+                notification_type='like'
+            )
+    else:
+        # ❌ UNLIKE → remove like
         like.delete()
 
-    return redirect(request.META.get('HTTP_REFERER', '/'))
-
+    return redirect('tweet_list')
 
 @login_required
 @require_POST
@@ -127,6 +136,15 @@ def add_comment(request, tweet_id):
         comment.user = request.user
         comment.tweet = tweet
         comment.save()
+
+        # 🔥 ADD THIS BLOCK
+        if tweet.user != request.user:
+            Notification.objects.create(
+                sender=request.user,
+                receiver=tweet.user,
+                tweet=tweet,
+                notification_type='comment'
+            )
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
