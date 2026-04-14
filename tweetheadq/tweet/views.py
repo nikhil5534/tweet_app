@@ -131,63 +131,26 @@ def toggle_like(request, tweet_id):
                 notification_type='like'
             )
 
+            # ✅ SAFE EMAIL BLOCK
             try:
-                resend.Emails.send({
-    "from": "TweetHQ <onboarding@resend.dev>",
-    "to": tweet.user.email,
-    "subject": "❤️ Someone liked your tweet",
-    "html": f"""
-    <div style="font-family: Arial, sans-serif; background:#f9f9f9; padding:30px;">
+                to_email = "tweet.nikhilporject@gmail.com"  # temp safe
 
-        <div style="max-width:500px; margin:auto; background:white; padding:20px; border-radius:10px;">
+                if RESEND_API_KEY:
+                    resend.Emails.send({
+                        "from": "TweetHQ <onboarding@resend.dev>",
+                        "to": to_email,
+                        "subject": "❤️ Someone liked your tweet",
+                        "html": f"""
+                        <div style="font-family: Arial, sans-serif; padding: 20px;">
+                            <h2>❤️ New Like</h2>
+                            <p><b>{request.user.username}</b> liked your tweet.</p>
+                            <p>"{tweet.text}"</p>
+                        </div>
+                        """
+                    })
+                else:
+                    print("⚠️ Email skipped (no API key)")
 
-            <h2 style="margin-top:0; color:#222;">
-                ❤️ New Like on TweetHQ
-            </h2>
-
-            <p style="font-size:15px; color:#555;">
-                <strong>{request.user.username}</strong> liked your tweet.
-            </p>
-
-            <div style="
-                background:#f1f3f5;
-                padding:12px;
-                border-radius:8px;
-                margin:20px 0;
-                font-style:italic;
-                color:#333;
-            ">
-                "{tweet.text}"
-            </div>
-
-            <div style="text-align:center; margin:25px 0;">
-                <a href="https://tweet-app-teal.vercel.app/"
-                   style="
-                       display:inline-block;
-                       padding:12px 20px;
-                       background:#007bff;
-                       color:white;
-                       text-decoration:none;
-                       border-radius:6px;
-                       font-weight:bold;
-                   ">
-                   View Tweet
-                </a>
-            </div>
-
-            <hr style="border:none; border-top:1px solid #eee;">
-
-            <p style="font-size:12px; color:#888; text-align:center; margin-top:15px;">
-                You’re receiving this because someone interacted with your tweet.
-                <br><br>
-                — <strong>TweetHQ</strong>
-            </p>
-
-        </div>
-
-    </div>
-    """
-})
             except Exception as e:
                 print("Resend Like Error:", e)
 
@@ -195,7 +158,6 @@ def toggle_like(request, tweet_id):
         like.delete()
 
     return redirect('tweet_list')
-
 
 # ===============================
 # 💬 COMMENT SYSTEM
@@ -221,51 +183,32 @@ def add_comment(request, tweet_id):
                 notification_type='comment'
             )
 
+            # ✅ SAFE EMAIL BLOCK
             try:
-                resend.Emails.send({
-        "from": "TweetHQ <onboarding@resend.dev>",
-        "to": tweet.user.email,
-        "subject": "💬 New comment on your tweet",
-        "html": f"""
-            <div style="font-family: Arial, sans-serif; padding: 20px;">
-                <h2 style="color:#333;">New Comment 💬</h2>
+                to_email = "tweet.nikhilporject@gmail.com"
 
-                <p>
-                    <strong>{request.user.username}</strong> commented on your tweet.
-                </p>
+                if RESEND_API_KEY:
+                    resend.Emails.send({
+                        "from": "TweetHQ <onboarding@resend.dev>",
+                        "to": to_email,
+                        "subject": "💬 New comment on your tweet",
+                        "html": f"""
+                        <div style="font-family: Arial, sans-serif; padding: 20px;">
+                            <h2>💬 New Comment</h2>
+                            <p><b>{request.user.username}</b> commented:</p>
+                            <p>"{comment.text}"</p>
+                            <hr>
+                            <p><b>Your Tweet:</b> "{tweet.text}"</p>
+                        </div>
+                        """
+                    })
+                else:
+                    print("⚠️ Email skipped (no API key)")
 
-                <div style="
-                    background:#f5f5f5;
-                    padding:10px;
-                    border-radius:8px;
-                    margin:15px 0;
-                ">
-                    <p><b>Your Tweet:</b> "{tweet.text}"</p>
-                </div>
-
-                <a href="https://tweet-app-teal.vercel.app/"
-                style="
-                    display:inline-block;
-                    padding:10px 15px;
-                    background:#28a745;
-                    color:white;
-                    text-decoration:none;
-                    border-radius:5px;
-                ">
-                View Conversation
-                </a>
-
-                <p style="margin-top:20px; font-size:12px; color:gray;">
-                    — TweetHQ Team
-                </p>
-            </div>
-        """
-})
             except Exception as e:
                 print("Resend Comment Error:", e)
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
-
 
 @login_required
 @require_POST
