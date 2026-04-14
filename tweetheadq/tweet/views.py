@@ -6,6 +6,14 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.conf import settings
+
+# ✅ NEW IMPORTS
+import resend
+import os
+
+# ✅ INIT RESEND
+resend.api_key = os.environ.get("RESEND_API_KEY")
 
 
 def index(request):
@@ -100,6 +108,9 @@ def user_tweets(request, username):
     })
 
 
+# ===============================
+# ❤️ LIKE SYSTEM
+# ===============================
 @login_required
 @require_POST
 def toggle_like(request, tweet_id):
@@ -111,20 +122,84 @@ def toggle_like(request, tweet_id):
     )
 
     if created:
-        # ✅ LIKE → create notification
         if tweet.user != request.user:
-            Notification.objects.create(
+
+            Notification.objects.get_or_create(
                 sender=request.user,
                 receiver=tweet.user,
                 tweet=tweet,
                 notification_type='like'
             )
+
+            try:
+                resend.Emails.send({
+    "from": "TweetHQ <onboarding@resend.dev>",
+    "to": tweet.user.email,
+    "subject": "❤️ Someone liked your tweet",
+    "html": f"""
+    <div style="font-family: Arial, sans-serif; background:#f9f9f9; padding:30px;">
+
+        <div style="max-width:500px; margin:auto; background:white; padding:20px; border-radius:10px;">
+
+            <h2 style="margin-top:0; color:#222;">
+                ❤️ New Like on TweetHQ
+            </h2>
+
+            <p style="font-size:15px; color:#555;">
+                <strong>{request.user.username}</strong> liked your tweet.
+            </p>
+
+            <div style="
+                background:#f1f3f5;
+                padding:12px;
+                border-radius:8px;
+                margin:20px 0;
+                font-style:italic;
+                color:#333;
+            ">
+                "{tweet.text}"
+            </div>
+
+            <div style="text-align:center; margin:25px 0;">
+                <a href="https://tweet-app-teal.vercel.app/"
+                   style="
+                       display:inline-block;
+                       padding:12px 20px;
+                       background:#007bff;
+                       color:white;
+                       text-decoration:none;
+                       border-radius:6px;
+                       font-weight:bold;
+                   ">
+                   View Tweet
+                </a>
+            </div>
+
+            <hr style="border:none; border-top:1px solid #eee;">
+
+            <p style="font-size:12px; color:#888; text-align:center; margin-top:15px;">
+                You’re receiving this because someone interacted with your tweet.
+                <br><br>
+                — <strong>TweetHQ</strong>
+            </p>
+
+        </div>
+
+    </div>
+    """
+})
+            except Exception as e:
+                print("Resend Like Error:", e)
+
     else:
-        # ❌ UNLIKE → remove like
         like.delete()
 
     return redirect('tweet_list')
 
+
+# ===============================
+# 💬 COMMENT SYSTEM
+# ===============================
 @login_required
 @require_POST
 def add_comment(request, tweet_id):
@@ -137,16 +212,60 @@ def add_comment(request, tweet_id):
         comment.tweet = tweet
         comment.save()
 
-        # 🔥 ADD THIS BLOCK
         if tweet.user != request.user:
-            Notification.objects.create(
+
+            Notification.objects.get_or_create(
                 sender=request.user,
                 receiver=tweet.user,
                 tweet=tweet,
                 notification_type='comment'
             )
 
+            try:
+                resend.Emails.send({
+        "from": "TweetHQ <onboarding@resend.dev>",
+        "to": tweet.user.email,
+        "subject": "💬 New comment on your tweet",
+        "html": f"""
+            <div style="font-family: Arial, sans-serif; padding: 20px;">
+                <h2 style="color:#333;">New Comment 💬</h2>
+
+                <p>
+                    <strong>{request.user.username}</strong> commented on your tweet.
+                </p>
+
+                <div style="
+                    background:#f5f5f5;
+                    padding:10px;
+                    border-radius:8px;
+                    margin:15px 0;
+                ">
+                    <p><b>Your Tweet:</b> "{tweet.text}"</p>
+                </div>
+
+                <a href="https://tweet-app-teal.vercel.app/"
+                style="
+                    display:inline-block;
+                    padding:10px 15px;
+                    background:#28a745;
+                    color:white;
+                    text-decoration:none;
+                    border-radius:5px;
+                ">
+                View Conversation
+                </a>
+
+                <p style="margin-top:20px; font-size:12px; color:gray;">
+                    — TweetHQ Team
+                </p>
+            </div>
+        """
+})
+            except Exception as e:
+                print("Resend Comment Error:", e)
+
     return redirect(request.META.get('HTTP_REFERER', '/'))
+
 
 @login_required
 @require_POST
@@ -154,11 +273,11 @@ def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
 
     if request.user != comment.user and request.user != comment.tweet.user:
-        return redirect('tweet_list')  # block unauthorized
+        return redirect('tweet_list')
 
     comment.delete()
-
     return redirect(request.META.get('HTTP_REFERER', '/'))
+
 
 @login_required
 @require_POST
@@ -166,7 +285,7 @@ def edit_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
 
     if request.user != comment.user:
-        return redirect('tweet_list')  # block unauthorized
+        return redirect('tweet_list')
 
     new_text = request.POST.get('text', '').strip()
 
@@ -176,11 +295,15 @@ def edit_comment(request, comment_id):
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
+
+# ===============================
+# 🔍 SEARCH USERS
+# ===============================
 def search_users(request):
     query = request.GET.get('q', '')
-    
+
     users = User.objects.filter(username__icontains=query)[:10]
-    
+
     results = list(users.values('id', 'username'))
-    
+
     return JsonResponse({'results': results})
