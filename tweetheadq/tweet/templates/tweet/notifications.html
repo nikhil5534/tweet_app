@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <h3>🔔 Notifications</h3>
+
+    <a href="{% url 'mark_read' %}" class="btn btn-sm btn-primary mb-3">
+        Mark all as read
+    </a>
+
+    {% if notifications %}
+        {% for n in notifications %}
+            <div class="card mb-2 p-3 {% if not n.is_read %}bg-light{% endif %}">
+                
+                <strong>{{ n.sender.username }}</strong>
+
+                {% if n.notification_type == "like" %}
+                    liked your tweet
+                {% elif n.notification_type == "comment" %}
+                    commented on your tweet
+                {% endif %}
+
+                <br>
+                <small>"{{ n.tweet.text|truncatechars:50 }}"</small>
+
+                <br>
+                <small class="text-muted">
+                    {{ n.created_at }}
+                </small>
+
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No notifications yet.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

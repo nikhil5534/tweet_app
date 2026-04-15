@@ -17,4 +17,8 @@ urlpatterns = [
     path('comment/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
     # search-users
     path('search-users/', views.search_users, name='search_users'),
+    path('notifications/', views.notifications_view, name='notifications'),
+    path('notifications/read/', views.mark_notifications_read, name='mark_read'),
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

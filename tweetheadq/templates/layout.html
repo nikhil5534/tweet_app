@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>
         {% block title %}
             TweetHQ
@@ -31,18 +32,44 @@
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Content -->
         <div class="collapse navbar-collapse" id="navbarNav">
 
-            <!-- Left -->
+            <!-- LEFT NAV -->
             <ul class="navbar-nav me-auto">
+
+                <!-- Home -->
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'tweet_list' %}">Home</a>
                 </li>
+
+                <!-- 🔔 Notification Bell (FIXED POSITION + SAFE) -->
+               {% if request.user.is_authenticated %}
+<li class="nav-item">
+    <a class="nav-link position-relative" href="{% url 'notifications' %}">
+        🔔
+
+        {% if unread_count > 0 %}
+            <span style="
+                position:absolute;
+                top:0;
+                right:0;
+                background:red;
+                color:white;
+                border-radius:50%;
+                padding:2px 6px;
+                font-size:10px;
+            ">
+                {{ unread_count }}
+            </span>
+        {% endif %}
+
+    </a>
+</li>
+{% endif %}
             </ul>
 
-            <!-- 🔍 Search -->
-            <div class="d-flex align-items-center position-relative me-3 flex-grow-1" style="max-width: 250px;">
+            <!-- 🔍 SEARCH -->
+            <div class="d-flex align-items-center position-relative me-3" style="max-width: 250px;">
                 <input 
                     type="text" 
                     id="searchInput" 
@@ -57,7 +84,7 @@
                 </div>
             </div>
 
-            <!-- Auth Section -->
+            <!-- AUTH -->
             {% if user.is_authenticated %}
                 <div class="d-flex align-items-center gap-2">
 
@@ -74,12 +101,10 @@
 
                 </div>
             {% else %}
-
                 <div class="d-flex gap-2">
                     <a href="{% url 'login' %}" class="btn btn-primary btn-sm">Login</a>
                     <a href="{% url 'register' %}" class="btn btn-success btn-sm">Register</a>
                 </div>
-
             {% endif %}
 
         </div>
@@ -96,9 +121,9 @@
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- ✅ Custom JS -->
+<!-- ✅ SEARCH SCRIPT (FIXED) -->
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
 
     const input = document.getElementById("searchInput");
     const resultsBox = document.getElementById("searchResults");
@@ -117,7 +142,7 @@
         }
 
         timeout = setTimeout(() => {
-            fetch(`/search-users/?q=${query}`)
+            fetch(`/tweet/search-users/?q=${query}`)
                 .then(res => res.json())
                 .then(data => {
 
@@ -136,7 +161,9 @@
                             item.classList.add("list-group-item", "list-group-item-action");
 
                             item.textContent = user.username;
-                            item.href = `/profile/${user.id}/`;
+
+                            // ✅ FIXED (username, not id)
+                            item.href = `/profile/${user.username}/`;
 
                             resultsBox.appendChild(item);
                         });
@@ -150,7 +177,6 @@
         }, 300);
     });
 
-    // Hide dropdown on outside click
     document.addEventListener("click", function (e) {
         if (!input.contains(e.target) && !resultsBox.contains(e.target)) {
             resultsBox.classList.add("d-none");
@@ -158,25 +184,7 @@
     });
 
 });
-
-// Existing functions (cleaned)
-function toggleComments(tweetId) {
-    const section = document.getElementById(`comments-${tweetId}`);
-    section.style.display = section.style.display === "block" ? "none" : "block";
-}
-
-function toggleEdit(commentId) {
-    const view = document.getElementById(`comment-view-${commentId}`);
-    const edit = document.getElementById(`comment-edit-${commentId}`);
-
-    if (edit.style.display === "none") {
-        edit.style.display = "block";
-        view.style.display = "none";
-    } else {
-        edit.style.display = "none";
-        view.style.display = "block";
-    }
-}
 </script>
+
 </body>
-</html> 
+</html>

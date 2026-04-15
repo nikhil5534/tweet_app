@@ -27,4 +27,5 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     # Homepage shows tweet feed
     path("", views.tweet_list, name="home"),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('profile/<str:username>/', views.user_tweets, name='profile'),
+] 
