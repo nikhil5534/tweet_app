@@ -124,7 +124,7 @@
 <!-- ✅ SEARCH SCRIPT (FIXED) -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-
+    console.log("JS LOADED");
     const input = document.getElementById("searchInput");
     const resultsBox = document.getElementById("searchResults");
 
@@ -145,44 +145,20 @@ document.addEventListener("DOMContentLoaded", function () {
             fetch(`/tweet/search-users/?q=${query}`)
                 .then(res => res.json())
                 .then(data => {
-
                     resultsBox.innerHTML = "";
 
-                    if (data.results.length === 0) {
-                        resultsBox.innerHTML = `
-                            <div class="list-group-item text-muted">
-                                No users found
-                            </div>
-                        `;
-                    } else {
-                        data.results.forEach(user => {
-
-                            const item = document.createElement("a");
-                            item.classList.add("list-group-item", "list-group-item-action");
-
-                            item.textContent = user.username;
-
-                            // ✅ FIXED (username, not id)
-                            item.href = `/profile/${user.username}/`;
-
-                            resultsBox.appendChild(item);
-                        });
-                    }
+                    data.results.forEach(user => {
+                        const item = document.createElement("a");
+                        item.classList.add("list-group-item", "list-group-item-action");
+                        item.textContent = user.username;
+                        item.href = `/profile/${user.username}/`;
+                        resultsBox.appendChild(item);
+                    });
 
                     resultsBox.classList.remove("d-none");
-                })
-                .catch(error => {
-                    console.error("Search error:", error);
                 });
         }, 300);
     });
-
-    document.addEventListener("click", function (e) {
-        if (!input.contains(e.target) && !resultsBox.contains(e.target)) {
-            resultsBox.classList.add("d-none");
-        }
-    });
-
 });
 </script>
 

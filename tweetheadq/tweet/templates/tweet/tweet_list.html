@@ -72,8 +72,9 @@
                             </form>
 
                             <!-- COMMENT -->
-                            <button onclick="toggleComments({{ tweet.id }})"
-                                    class="btn btn-outline-secondary btn-sm">
+                            <button type="button"
+                                onclick="toggleComments({{ tweet.id }})"
+                                class="btn btn-outline-secondary btn-sm">
                                 💬 {{ tweet.comments.count }}
                             </button>
 
@@ -169,5 +170,22 @@
     {% endif %}
 
 </div>
+<script>function toggleComments(tweetId) {
+    const el = document.getElementById(`comments-${tweetId}`);
+    el.style.display = el.style.display === "block" ? "none" : "block";
+}
 
+function toggleEdit(commentId) {
+    const view = document.getElementById(`comment-view-${commentId}`);
+    const edit = document.getElementById(`comment-edit-${commentId}`);
+
+    if (edit.style.display === "block") {
+        edit.style.display = "none";
+        view.style.display = "block";
+    } else {
+        edit.style.display = "block";
+        view.style.display = "none";
+    }
+}
+</script>
 {% endblock %}
